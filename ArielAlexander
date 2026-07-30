@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cuaderno Digital | Química y Biología</title>
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #eef2f3 0%, #e0eafc 100%);
+      --surface-color: #ffffff;
+      --text-main: #2c3e50;
+      --text-muted: #6c757d;
+      --quimica-primary: #0077b6;
+      --quimica-bg: #e0f2fe;
+      --biologia-primary: #2a9d8f;
+      --biologia-bg: #e6f4f1;
+      --accent: #264653;
+      --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.08);
+      --shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.12);
+      --radius: 16px;
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px 20px 100px 20px;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .header-card {
+      width: 100%;
+      background: var(--surface-color);
+      border-radius: var(--radius);
+      padding: 25px 20px;
+      text-align: center;
+      box-shadow: var(--shadow-soft);
+      border-bottom: 5px solid var(--accent);
+    }
+
+    .header-card h1 {
+      font-size: 1.8rem;
+      color: var(--accent);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .header-card h2 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 12px;
+    }
+
+    .user-info {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .user-info span {
+      background: #f1f5f9;
+      padding: 6px 16px;
+      border-radius: 20px;
+    }
+
+    /* Selector de Materias Superior (Persistente) */
+    .subject-selector {
+      display: flex;
+      gap: 16px;
+      width: 100%;
+      max-width: 600px;
+      justify-content: center;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 12px 20px;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+      background: var(--surface-color);
+      color: var(--text-muted);
+      box-shadow: var(--shadow-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .tab-btn.active-quimica {
+      background: var(--quimica-primary);
+      color: #ffffff;
+      box-shadow: var(--shadow-hover);
+    }
+
+    .tab-btn.active-biologia {
+      background: var(--biologia-primary);
+      color: #ffffff;
+      box-shadow: var(--shadow-hover);
+    }
+
+    .subject-content {
+      width: 100%;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .subject-content.active {
+      display: flex;
+    }
+
+    .subject-banner {
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--radius);
+      text-align: center;
+      font-weight: 600;
+      box-shadow: var(--shadow-soft);
+    }
+
+    #quimica .subject-banner {
+      background: var(--quimica-bg);
+      color: var(--quimica-primary);
+    }
+
+    #biologia .subject-banner {
+      background: var(--biologia-bg);
+      color: var(--biologia-primary);
+    }
+
+    /* BARRA FLOTANTE DERECHA: CLASES */
+    .floating-class-nav {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      padding: 8px 12px;
+      border-radius: 30px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      max-width: 60vw;
+      overflow-x: auto;
+    }
+
+    /* BARRA FLOTANTE IZQUIERDA: MATERIAS (APARTADO INDEPENDIENTE) */
+    .floating-subject-nav {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      padding: 8px 12px;
+      border-radius: 30px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .class-nav-btn {
+      border: none;
+      background: transparent;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: var(--transition);
+    }
+
+    .class-nav-btn:hover {
+      background: #e2e8f0;
+      color: var(--text-main);
+    }
+
+    .class-nav-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    .subject-toggle-btn {
+      border: none;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: var(--transition);
+      background: #f1f5f9;
+      color: var(--text-muted);
+    }
+
+    .subject-toggle-btn.active-q {
+      background: var(--quimica-primary);
+      color: #ffffff;
+    }
+
+    .subject-toggle-btn.active-b {
+      background: var(--biologia-primary);
+      color: #ffffff;
+    }
+
+    .classes-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      align-items: center;
+    }
+
+    /* Tarjetas de clases */
+    .class-card {
+      width: 100%;
+      background: var(--surface-color);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-soft);
+      transition: var(--transition);
+      border-left: 6px solid transparent;
+      overflow: hidden;
+      display: none;
+    }
+
+    .class-card.active-section {
+      display: block;
+    }
+
+    #quimica .class-card {
+      border-left-color: var(--quimica-primary);
+    }
+
+    #biologia .class-card {
+      border-left-color: var(--biologia-primary);
+    }
+
+    .class-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px;
+      background: var(--surface-color);
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .class-title-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .class-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .class-date {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      background: #f1f5f9;
+      padding: 4px 10px;
+      border-radius: 8px;
+    }
+
+    .class-body {
+      padding: 24px;
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #333333;
+    }
+
+    .class-body h4 {
+      margin: 16px 0 6px 0;
+      color: var(--accent);
+    }
+
+    .class-body ul, .class-body ol {
+      margin-left: 20px;
+      margin-bottom: 12px;
+    }
+
+    .class-body li {
+      margin-bottom: 4px;
+    }
+
+    @media (max-width: 650px) {
+      body {
+        padding: 10px 10px 120px 10px;
+      }
+
+      .header-card h1 {
+        font-size: 1.3rem;
+      }
+
+      .user-info {
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .class-header {
+        padding: 16px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .class-body {
+        padding: 16px;
+      }
+
+      .floating-subject-nav {
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 70px;
+      }
+
+      .floating-class-nav {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        bottom: 15px;
+        max-width: 90vw;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <header class="header-card">
+      <h1>Unidad Educativa Atacames</h1>
+      <h2>Cuaderno Digital</h2>
+      <div class="user-info">
+        <span><strong>Estudiante:</strong> Ariel Alexander Arce Carreño</span>
+        <span><strong>Curso:</strong> 3ro "C" Informática</span>
+      </div>
+    </header>
+
+    <nav class="subject-selector">
+      <button class="tab-btn active-quimica" id="top-btn-quimica" onclick="switchSubject('quimica')">
+        🧪 Química
+      </button>
+      <button class="tab-btn" id="top-btn-biologia" onclick="switchSubject('biologia')">
+        🌿 Biología
+      </button>
+    </nav>
+
+    <section id="quimica" class="subject-content active">
+      <div class="subject-banner">
+        <h3>Módulo de Química</h3>
+      </div>
+
+      <div class="classes-list">
+        
+        <article id="quimica-clase-1" class="class-card">
+          <div class="class-header">
+            <div class="class-title-container">
+              <span class="class-title">Clase #1: Características de los Gases</span>
+            </div>
+            <span class="class-date">Nivelación - 3.º Bachillerato</span>
+          </div>
+          <div class="class-body">
+            <p><strong>¿Qué son los gases?</strong> Es uno de los tres estados principales de la materia, caracterizado por la dispersión, fluidez y baja atracción entre sus partículas. Es la forma más volátil de la materia en la naturaleza.</p>
+            
+            <h4>Clasificación por Naturaleza Química</h4>
+            <ul>
+              <li><strong>Combustibles o inflamables:</strong> Pueden arder generando reacciones exotérmicas o explosivas al contacto con oxígeno u oxidantes.</li>
+              <li><strong>Corrosivos:</strong> Someten a otras sustancias a procesos de oxidación/reducción intensos, dañando superficies o tejidos orgánicos.</li>
+              <li><strong>Comburentes:</strong> Inducen la combustión en otras sustancias, manteniendo viva la llama.</li>
+              <li><strong>Tóxicos:</strong> Representan un riesgo para la salud por las reacciones químicas que generan en los seres vivos.</li>
+              <li><strong>Inertes o nobles:</strong> Tienen nula o casi nula reactividad química.</li>
+            </ul>
+
+            <h4>Propiedades de los Gases</h4>
+            <ul>
+              <li><strong>Sin forma ni volumen propio:</strong> Se adaptan y ocupan todo el espacio del contenedor que los alberga.</li>
+              <li><strong>Dilatación y Contracción:</strong> Aumentan su volumen con el calor y se contraen al enfriarse.</li>
+              <li><strong>Gran Fluidez y Difusión:</strong> Se desplazan rápidamente a través de aberturas y se mezclan con facilidad por el alto movimiento de sus partículas.</li>
+              <li><strong>Compresibilidad y Solubilidad:</strong> Pueden comprimirse aplicando presión y disolverse en agua u otros líquidos.</li>
+            </ul>
+
+            <h4>Efectos Ambiental y de los Gases Contaminantes</h4>
+            <p><strong>Efecto Invernadero y Calentamiento Global:</strong> Ocurre cuando los gases contaminantes forman una capa en la atmósfera que impide que la radiación térmica terrestre escape al espacio, provocando un aumento en la temperatura global. Sus principales exponentes son el dióxido de carbono (CO<sub>2</sub>), metano (CH<sub>4</sub>) y óxido nitroso (N<sub>2</sub>O).</p>
+            <p><strong>Lluvia Ácida:</strong> Los procesos de combustión emiten azufre y nitrógeno a la atmósfera, los cuales se combinan con la humedad del aire formando ácidos sulfúrico y nítrico. Esta lluvia corroe metales, construcciones, maderas y piedras (como el mármol).</p>
+
+            <h4>Cambios de Estado en los Gases</h4>
+            <ul>
+              <li><strong>Evaporación y Ebullición:</strong> Paso de líquido a gas. La evaporación ocurre lentamente en la superficie; la ebullición sucede en toda la masa al alcanzar el punto de ebullición.</li>
+              <li><strong>Condensación:</strong> Transformación de gas a líquido por pérdida de energía calórica.</li>
+              <li><strong>Sublimación:</strong> Paso directo de sólido a gas sin pasar por la fase líquida (ej. hielo seco).</li>
+              <li><strong>Sublimación Inversa:</strong> Paso directo de gas a sólido sin convertirse previamente en líquido.</li>
+            </ul>
+
+            <h4>Ejemplos Comunes</h4>
+            <p>Hidrógeno (H<sub>2</sub>), Helio (He), Metano (CH<sub>4</sub>) y el Aire (mezcla heterogénea de nitrógeno, oxígeno, argón, entre otros).</p>
+          </div>
+        </article>
+
+        <article id="quimica-clase-2" class="class-card">
+          <div class="class-header">
+            <div class="class-title-container">
+              <span class="class-title">Clase #2: El Átomo de Carbono</span>
+            </div>
+            <span class="class-date">Nivelación - Lic. Mónica Valencia Castro</span>
+          </div>
+          <div class="class-body">
+            <p><strong>Introducción a la Química Orgánica:</strong> La química orgánica es la rama de la ciencia que se encarga del estudio de los compuestos derivados del carbono. Históricamente se creía en la teoría del "impulso vital" (que los compuestos orgánicos solo provenían de seres vivos), hasta que en 1828 Friedrich Wöhler logró sintetizar urea en el laboratorio a partir de sustancias inorgánicas.</p>
+
+            <h4>¿Qué es el Átomo de Carbono?</h4>
+            <p>Es un elemento no metálico esencial para la vida, constituyente básico de seres vivos, fósiles, petróleo, carbón, gas natural e hidrocarburos. También forma compuestos inorgánicos como carbonatos, sulfatos y dióxido de carbono.</p>
+
+            <h4>Características Principales del Átomo de Carbono</h4>
+            <ol>
+              <li><strong>Número atómico y masa:</strong> Posee Z = 6 (6 protones y 6 electrones) y una masa atómica A = 12. Se ubica en el Período 2, Grupo IV (14) de la Tabla Periódica.</li>
+              <li><strong>Configuración Electrónica:</strong> Su configuración en estado fundamental es 1s<sup>2</sup> 2s<sup>2</sup> 2p<sup>2</sup> (con 4 electrones en su último nivel).</li>
+              <li><strong>Tetravalencia:</strong> Tiene 4 electrones de valencia. Esto le permite compartir electrones con otros átomos (formando enlaces covalentes) para completar el octeto.</li>
+              <li><strong>Hibridación de Orbitales:</strong> Reordenamiento de sus orbitales al unirse con otros elementos:
+                <ul>
+                  <li><strong>sp<sup>3</sup> (Tetraédrica, 109.5°):</strong> Forma 4 enlaces simples (saturado). Solo enlaces sigma (σ).</li>
+                  <li><strong>sp<sup>2</sup> (Trigonal Plana, 120°):</strong> Forma enlaces dobles (insaturado). Posee enlaces sigma (σ) y un enlace pi (π).</li>
+                  <li><strong>sp (Lineal, 180°):</strong> Forma enlaces triples (insaturado). Contiene enlaces sigma (σ) y dos enlaces pi (π).</li>
+                </ul>
+              </li>
+              <li><strong>Semejanza con el Silicio:</strong> Pertenece al mismo grupo IV. Sin embargo, el silicio no puede formar enlaces múltiples fácilmente por la repulsión de sus electrones internos.</li>
+              <li><strong>Alotropía:</strong> Capacidad de presentarse en distintas estructuras físicas dentro del mismo estado. Ejemplos: diamante, grafito, carbón activado, negro de humo, fullerenos y grafeno.</li>
+              <li><strong>Combinación:</strong> Forma cerca de 10 millones de compuestos orgánicos e inorgánicos.</li>
+              <li><strong>Isótopos:</strong> Presenta los isótopos naturales Carbono-12 (98.90%) y Carbono-13 (1.10%), además de isótopos inestables como el Carbono-14, utilizado para la datación arqueológica por su vida media de 5730 años.</li>
+            </ol>
+          </div>
+        </article>
+
+        <article id="quimica-clase-3" class="class-card">
+          <div class="class-header">
+            <div class="class-title-container">
+              <span class="class-title">Clase #3: Tipos de Fórmulas Químicas</span>
+            </div>
+            <span class="class-date">Química - 3.º Bachillerato</span>
+          </div>
+          <div class="class-body">
+            <p><strong>¿Qué es una fórmula química?</strong> Es una expresión gráfica de los elementos que componen un compuesto químico cualquiera. Las fórmulas de los compuestos orgánicos proporcionan información clave sobre su composición y estructura.</p>
+
+            <h4>Principales Tipos de Fórmulas Orgánicas</h4>
+            <ol>
+              <li><strong>Fórmula Empírica:</strong> Los subíndices indican la proporción simplificada de los átomos de cada elemento en una molécula.
+                <ul>
+                  <li><em>Ejemplo (Etano):</em> CH<sub>3</sub> (1 C por cada 3 H).</li>
+                  <li><em>Ejemplo (Glucosa):</em> CH<sub>2</sub>O (1 C por cada 2 H y 1 O).</li>
+                  <li><em>Nota:</em> No sirven para identificar compuestos específicos de manera única.</li>
+                </ul>
+              </li>
+              <li><strong>Fórmula Molecular:</strong> Indica el número total exacto de átomos de cada elemento que forman la molécula.
+                <ul>
+                  <li><em>Ejemplo (Etano):</em> C<sub>2</sub>H<sub>6</sub>.</li>
+                  <li><em>Ejemplo (Glucosa):</em> C<sub>6</sub>H<sub>12</sub>O<sub>6</sub>.</li>
+                </ul>
+              </li>
+              <li><strong>Fórmula Semidesarrollada o Condensada:</strong> Expresa los átomos que integran el compuesto y algunos enlaces químicos (simples, dobles o triples) entre átomos principales (como carbono-carbono). No se representan explícitamente los enlaces carbono-hidrógeno. Es la más utilizada en química orgánica.
+                <ul>
+                  <li><em>Ejemplo (Etano):</em> CH<sub>3</sub>-CH<sub>3</sub>.</li>
+                  <li><em>Ejemplo (Glucosa):</em> CH<sub>2</sub>OH-CHOH-CHOH-CHOH-CHOH-CHO.</li>
+                </ul>
+              </li>
+              <li><strong>Fórmula Desarrollada:</strong> Expresa la totalidad de los enlaces presentes en la molécula desarrollados en un plano. Su uso es poco práctico en moléculas complejas.</li>
+              <li><strong>Fórmula Esquelética o Lineal:</strong> Es una de las más comunes en química orgánica. Consiste en trazar líneas en zig-zag donde los vértices y extremos representan átomos de carbono unidos mediante enlaces sencillos, dobles o triples, mientras que los hidrógenos se omiten.</li>
+              <li><strong>Fórmula de Lewis (Estructura de Lewis):</strong> Representación similar a la desarrollada, pero indica explícitamente los electrones compartidos en cada enlace mediante puntos o líneas, así como los electrones no compartidos representados por pares de puntos sobre el átomo correspondiente.</li>
+              <li><strong>Fórmula Estructural, Tridimensional o Geométrica:</strong> Indica la disposición real de los átomos y enlaces en el espacio (usada en estereoisomería). Se recurre a convencionalismos de trazo:
+                <ul>
+                  <li><strong>Cuña sólida:</strong> Representa un enlace que sale del plano del papel hacia adelante.</li>
+                  <li><strong>Cuña discontinua (o punteada):</strong> Representa un enlace que entra detrás del plano del papel.</li>
+                  <li><strong>Línea continua:</strong> Representa un enlace contenido exactamente dentro del plano del papel.</li>
+                </ul>
+              </li>
+            </ol>
+          </div>
+        </article>
+
+        <article id="quimica-clase-4" class="class-card">
+          <div class="class-header">
+            <div class="class-title-container">
+              <span class="class-title">Clase #4: Tipos de Carbono</span>
+            </div>
+            <span class="class-date">Química - 3.º Bachillerato</span>
+          </div>
+          <div class="class-body">
+            <p><strong>Clasificación del Átomo de Carbono en Cadenas Orgánicas:</strong> Según la cantidad de átomos de carbono adicionales a los que se encuentre directamente unido, un carbono en una estructura orgánica se clasifica en cuatro tipos primordiales.</p>
+
+            <h4>Tipos de Carbono según su Enlace</h4>
+            <ol>
+              <li><strong>Carbono Primario:</strong> Es aquel átomo de carbono que está unido directamente a un solo átomo de carbono. El resto de sus enlaces están unidos a otros átomos (generalmente hidrógenos).
+                <ul>
+                  <li><em>Estructura habitual:</em> Representado comúnmente como <strong>-CH<sub>3</sub></strong> en los extremos de las cadenas.</li>
+                </ul>
+              </li>
+              <li><strong>Carbono Secundario:</strong> Es aquel átomo de carbono que está unido directamente a dos átomos de carbono. El resto de sus enlaces se completan con otros átomos distintos (generalmente hidrógenos).
+                <ul>
+                  <li><em>Estructura habitual:</em> Representado habitualmente como <strong>-CH<sub>2</sub>-</strong> dentro de la cadena principal.</li>
+                </ul>
+              </li>
+              <li><strong>Fórmula Terciaria / Carbono Terciario:</strong> Es aquel átomo de carbono que se encuentra unido directamente a tres átomos de carbono. El enlace restante se completa con otro átomo distinto de carbono (generalmente un hidrógeno).
+                <ul>
+                  <li><em>Estructura habitual:</em> Representado habitualmente como <strong>-CH-</strong> en ramificaciones.</li>
+                </ul>
+              </li>
+              <li><strong>Carbono Cuaternario:</strong> Es aquel átomo de carbono que se encuentra unido directamente a cuatro átomos de carbono. No posee enlaces libres para unirse a átomos de hidrógeno.
+                <ul>
+                  <li><em>Estructura habitual:</em> Representado simplemente como <strong>-C-</strong> en puntos de cruzamiento de cadenas.</li>
+                </ul>
+              </li>
+            </ol>
+          </div>
+        </article>
+
+        <article id="quimica-clase-5" class="class-card">
+          <div class="class-header">
+            <div class="class-title-container">
+              <span class="class-title">Clase #5: Alcanos y Radicales Alquilo</span>
+            </div>
+            <span class="class-date">Química - 3.º Bachillerato</span>
+          </div>
+          <div class="class-body">
+            <p><strong>¿Qué son los Alcanos?</strong> Son hidrocarburos de cadena abierta en los que todos los enlaces carbono-carbono son sencillos, por lo que también se les conoce como <em>hidrocarburos saturados</em>. Constituyen la base de la química orgánica y representan una de las principales fuentes de energía.</p>
+            <p><strong>Fórmula general:</strong> C<sub>n</sub>H<sub>2n+2</sub>. Cada carbono se enlaza a suficientes hidrógenos para completar sus cuatro valencias.</p>
+
+            <h4>Estados de Agregación y Reactividad</h4>
+            <ul>
+              <li><strong>Gaseosos:</strong> Del metano al butano (1 a 4 carbonos).</li>
+              <li><strong>Líquidos:</strong> Del pentano al heptadecano (5 a 17 carbonos).</li>
+              <li><strong>Sólidos:</strong> Compuestos con 18 o más átomos de carbono.</li>
+              <li><strong>Reactividad:</strong> Poseen enlaces covalentes simples muy estables, lo que los hace poco reactivos a temperaturas normales (relativamente inertes). Reaccionan principalmente con oxígeno (combustión) y halógenos.</li>
+            </ul>
+
+            <h4>Propiedades Fisicoquímicas, Fuentes y Usos</h4>
+            <ul>
+              <li><strong>Propiedades físicas:</strong> Son menos densos que el agua y sus puntos de ebullición se elevan a medida que aumenta la cantidad de carbonos en la cadena.</li>
+              <li><strong>Fuentes y usos:</strong> Se obtienen mayoritariamente del petróleo y el gas natural mediante destilación fraccionada. Se usan como combustibles esenciales e insumos para industrias (plásticos, textiles, etc.).</li>
+              <li><strong>Clasificación:</strong> Se dividen en alcanos de cadena lineal y cicloalcanos (cíclicos).</li>
+            </ul>
+
+            <h4>Nomenclatura de Alcanos Lineales</h4>
+            <p>Los primeros cuatro tienen nombres propios habituales: <strong>Metano</strong> (CH<sub>4</sub>), <strong>Etano</strong> (C<sub>2</sub>H<sub>6</sub>), <strong>Propano</strong> (C<sub>3</sub>H<sub>8</sub>) y <strong>Butano</strong> (C<sub>4</sub>H<sub>10</sub>). A partir de cinco carbonos se emplean prefijos numéricos griegos (penta-, hexa-, hepta-, octa-, nona-, deca-) seguidos del sufijo <strong>-ano</strong>.</p>
+
+            <h4>Radicales Alquilo</h4>
+            <p>Son grupos de átomos producidos cuando un alcano pierde un átomo de hidrógeno, quedando con un electrón libre para enlazarse. Se nombran cambiando la terminación <em>-ano</em> del alcano del que provienen por <strong>-il</strong> o <strong>-ilo</strong>.</p>
+            <ul>
+              <li><strong>Metil:</strong> -CH<sub>3</sub></li>
+              <li><strong>Etil:</strong> -CH<sub>2</sub>-CH<sub>3</sub></li>
+              <li><strong>Propil:</strong> -CH<sub>2</sub>-CH<sub>2</sub>-CH<sub>3</sub></li>
+              <li><strong>Isopropil:</strong> -CH(CH<sub>3</sub>)<sub>2</sub></li>
+              <li><strong>Butil:</strong> -CH<sub>2</sub>-CH<sub>2</sub>-CH<sub>2</sub>-CH<sub>3</sub></li>
+              <li><strong>Isobutil:</strong> -CH<sub>2</sub>-CH(CH<sub>3</sub>)<sub>2</sub></li>
+              <li><strong>Sec-butil:</strong> -CH(CH<sub>3</sub>)-CH<sub>2</sub>-CH<sub>3</sub></li>
+              <li><strong>Ter-butil:</strong> -C(CH<sub>3</sub>)<sub>3</sub></li>
+            </ul>
+
+            <h4>Reglas para Nombrar Alcanos Ramificados (IUPAC)</h4>
+            <ol>
+              <li><strong>Cadena principal:</strong> Identificar la cadena continua de carbonos más larga; esta asigna el nombre base del alcano.</li>
+              <li><strong>Identificar ramificaciones:</strong> Reconocer todas las cadenas laterales o sustituyentes alquilo unidos a la cadena principal.</li>
+              <li><strong>Numeración:</strong> Numerar los carbonos de la cadena principal empezando por el extremo más cercano a la primera ramificación.</li>
+              <li><strong>Formato y guiones:</strong> Usar guiones (-) para separar las posiciones numéricas de los nombres de los grupos alquilo.</li>
+              <li><strong>Prefijos de cantidad y orden:</strong> Si hay varios grupos idénticos, usar los prefijos <em>di-</em>, <em>tri-</em>, <em>tetra-</em>, etc. Ordenar los nombres de los sustituyentes alfabéticamente antes del nombre final de la cadena principal.</li>
+            </ol>
+          </div>
+        </article>
+
+        <article id="quimica-clase-6" class="class-card">
+          <div class="class-header">
+            <div class="class-title-container">
+              <span class="class-title">Clase #6: Hidrocarburos Alquenos</span>
+            </div>
+            <span class="class-date">Química - 3.º Bachillerato</span>
+          </div>
+          <div class="class-body">
+            <p><strong>¿Qué son los Alquenos?</strong> Son hidrocarburos insaturados que poseen al menos un doble enlace (C=C) en su cadena carbonada. Tienen una reactividad superior a la de los alcanos y se obtienen principalmente por el proceso de <em>craqueo</em> de las fracciones ligeras del petróleo.</p>
+            <p><strong>Fórmula Molecular General:</strong> C<sub>n</sub>H<sub>2n</sub>. Se nombran empleando la terminación o sufijo <strong>-eno</strong>.</p>
+
+            <h4>Importancia del Eteno (Etileno)</h4>
+            <p>El <strong>eteno</strong> o <em>etileno</em> (C<sub>2</sub>H<sub>4</sub> o CH<sub>2</sub>=CH<sub>2</sub>) es el alqueno más sencillo. Es un gas fitoquímico producido de forma natural en las frutas durante su proceso de maduración, responsable de la suavización del fruto y del cambio de color de la cáscara.</p>
+
+            <h4>Reglas de Nomenclatura para Alquenos Lineales</h4>
+            <ul>
+              <li>Se sustituye la terminación <em>-ano</em> del alcano por el sufijo <strong>-eno</strong>.</li>
+              <li>La cadena principal se numera empezando siempre por el extremo más cercano al doble enlace.</li>
+              <li>Se debe indicar el localizador (número de posición) del primer carbono del doble enlace antes del nombre base.</li>
+              <li>Si la molécula contiene dos dobles enlaces, la terminación cambia a <strong>-dieno</strong> (por ejemplo: <em>1,3-butadieno</em>).</li>
+            </ul>
+
+            <h4>Reglas de Nomenclatura para Alquenos Ramificados</h4>
+            <ul>
+              <li><strong>Cadena principal:</strong> Debe elegirse obligatoriamente la cadena de carbono más larga que contenga el doble enlace.</li>
+              <li><strong>Múltiples dobles enlaces:</strong> En presencia de más de un doble enlace, se selecciona la cadena principal que contenga la mayor cantidad posible de dobles enlaces.</li>
+              <li><strong>Numeración y sustituyentes:</strong> Se numera priorizando los dobles enlaces y luego se añaden los radicales con sus respectivas posiciones (ejemplos: <em>3-metil-1-buteno</em>, <em>3,7-dimetil-4-noneno</em>, <em>2,4,4-trimetil-1-penteno</em>).</li>
+            </ul>
+          </div>
+        </article>
+
+        <article id="quimica-clase-7" class="class-card">
+          <div class="class-header">
+            <div class="class-title-container">
+              <span class="class-title">Clase #7: Hidrocarburos Alquinos</span>
+            </div>
+            <span class="class-date">Química - 3.º Bachillerato</span>
+          </div>
+          <div class="class-body">
+            <p><strong>¿Qué son los Alquinos?</strong> Son hidrocarburos insaturados que se caracterizan por presentar al menos un triple enlace carbono-carbono (-C≡C-) en su estructura. Este triple enlace está constituido geométricamente por un enlace fuerte sigma (σ) y dos enlaces pi (π) derivados del solapamiento de orbitales.</p>
+            <p><strong>Fórmula Molecular General:</strong> C<sub>n</sub>H<sub>2n-2</sub>. Al poseer un nivel de insaturación mayor que los alquenos, contienen una menor cantidad de átomos de hidrógeno por cada carbono de la cadena.</p>
+
+            <h4>Propiedades Fisicoquímicas y Solubilidad</h4>
+            <ul>
+              <li><strong>Solubilidad:</strong> Son generalmente hidrófobos e insolubles en agua debido a su carácter no polar, pero resultan altamente solubles en disolventes orgánicos no polares como éter, benceno y tetracloruro de carbono.</li>
+              <li><strong>Densidad y Puntos de Ebullición:</strong> Son menos densos que el agua y sus puntos de ebullición/fusión aumentan proporcionalmente con la longitud de la cadena carbonada.</li>
+              <li><strong>Denominación Histórica (Acetilenos):</strong> También son conocidos genéricamente como <em>acetilenos</em>, tomando como referencia al acetileno o etino (HC≡CH), que es el compuesto más simple y representativo de esta serie homóloga.</li>
+            </ul>
+
+            <h4>Estructura y Representación</h4>
+            <p>Las moléculas de los alquinos se pueden representar mediante diversas formas convencionales en química orgánica:</p>
+            <ul>
+              <li><strong>Bidimensional (2D) y Tridimensional (3D):</strong> Para observar el ángulo plano lineal característico (180°) inducido por la hibridación <em>sp</em> de sus carbonos de triple enlace.</li>
+              <li><strong>Fórmulas Químicas:</strong> Se representan habitualmente mediante fórmulas moleculares, semidesarrolladas, desarrolladas y en forma de esqueleto (lineal o zig-zag).</li>
+            </ul>
+
+            <h4>Reglas de Nomenclatura para Alquinos Lineales</h4>
+            <ul>
+              <li>Se toma como base el nombre del alcano equivalente cambiando la terminación <em>-ano</em> por el sufijo <strong>-ino</strong>.</li>
+              <li>La cadena carbonada se numera empezando estrictamente por el extremo más cercano al triple enlace.</li>
+              <li>Se coloca el número localizador de la posición del primer carbono involucrado en el triple enlace antes del nombre principal de la cadena (ej. <em>1-hexino</em>, <em>2-butino</em>).</li>
+              <li>Si la cadena principal posee dos triples enlaces, la terminación cambia a <strong>-diino</strong> (ejemplo: <em>1,7-nonadiino</em>, <em>1,3-butadiino</em>).</li>
+            </ul>
+
+            <h4>Reglas de Nomenclatura para Alquinos Ramificados</h4>
+            <ul>
+              <li><strong>Elección de la cadena principal:</strong> Debe seleccionarse obligatoriamente la cadena continua de carbonos más larga que contenga el o los triples enlaces. En caso de existir más de un triple enlace, se elegirá aquella cadena que contenga la mayor cantidad posible de triples enlaces, independientemente de la longitud total de las ramificaciones.</li>
+              <li><strong>Prioridad de Numeración:</strong> Se asigna la numeración más baja posible a los carbonos que forman los triples enlaces. Si hay empate desde ambos extremos, la numeración se define por la posición más cercana de los radicales sustituyentes.</li>
+              <li><strong>Ordenamiento de Sustituyentes:</strong> Los grupos o radicales alquílicos (como metil, etil, sec-butil, etc.) se nombran e identifican con sus respectivos localizadores alfabéticamente antes de la palabra base de la cadena principal (ejemplos: <em>6-etil-2-heptino</em>, <em>3,6-dietil-1-octino</em>, <em>4-etil-5-metil-2-hexino</em>, <em>4-butil-7-metil-6-secbutil-2-decino</em>).</li>
+            </ul>
+          </div>
+        </article>
+
+        <article id="quimica-clase-8" class="class-card">
+          <div class="class-header">
+            <div class="class-title-container">
+              <span class="class-title">Clase #8: Hidrocarburos Cíclicos</span>
+            </div>
+            <span class="class-date">Química - 3.º Bachillerato</span>
+          </div>
+          <div class="class-body">
+            <p><strong>¿Qué son los Hidrocarburos Cíclicos?</strong> Son hidrocarburos de cadena cerrada. Se forman cuando el último átomo de carbono de la cadena se enlaza directamente con el primero, constituyendo una estructura en forma de ciclo o anillo.</p>
+
+            <h4>Clasificación Según su Grado de Saturación</h4>
+            <ul>
+              <li><strong>Cicloalcanos:</strong> Son hidrocarburos cíclicos saturados (poseen únicamente enlaces sencillos carbono-carbono).</li>
+              <li><strong>Cicloalquenos y Cicloalquinos:</strong> Son hidrocarburos cíclicos insaturados que presentan dobles o triples enlaces dentro de su anillo.</li>
+            </ul>
+
+            <h4>Reglas Generales de Nomenclatura</h4>
+            <ul>
+              <li><strong>Prefijo "ciclo-":</strong> Todos estos compuestos se nombran anteponiendo el prefijo <strong>ciclo-</strong> al nombre del alcano, alqueno o alquino lineal de igual número de átomos de carbono (ejemplos: <em>ciclopropano</em>, <em>ciclobutano</em>, <em>ciclopentano</em>).</li>
+              <li><strong>Numeración de Insaturaciones y Sustituyentes:</strong> Si el ciclo contiene múltiples dobles enlaces, átomos de halógeno o grupos alquilo, los carbonos se enumeran de manera que los localizadores más bajos correspondan primordialmente a los enlaces múltiples.</li>
+              <li><strong>Representación Gráfica:</strong> Es común representarlos mediante figuras geométricas (líneas poligonales cerradas), donde cada vértice corresponde a un grupo CH<sub>2</sub> o átomo de C, y cada lado a un enlace carbono-carbono.</li>
+              <li><strong>Ciclos como Sustituyentes:</strong> Cuando la estructura posee una cadena lateral abierta más compleja, el hidrocarburo cíclico se nombra como un sustituyente ramificado agregando la terminación <strong>-il</strong> (ejemplo: <em>ciclohexil</em>, <em>ciclopentil</em>).</li>
+            </ul>
+
+            <h4>Ejemplos Representativos</h4>
+            <ul>
+              <li><strong>Cicloalcanos sencillos y ramificados:</strong> <em>ciclopropano</em>, <em>ciclobutano</em>, <em>ciclopentano</em>, <em>1,1,2-trimetilciclopentano</em>, <em>1-etil-3-metil-5-propilciclohexano</em>.</li>
+              <li><strong>Cicloalquenos y Cicloalquinos:</strong> <em>3,4,5-trimetilciclohexeno</em>, <em>4-etil-4,5-dimetilciclohexeno</em>, <em>3,5-dimetilciclohexeno</em>, <em>ciclopropino</em>, <em>3-bromo-5-clorociclopentino</em>.</li>
+              <li><strong>Como Sustituyente:</strong> <em>3-ciclohexil-4-ciclopentil-2-metilhexano</em>.</li>
+            </ul>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <section id="biologia" class="subject-content">
+      <div class="subject-banner">
+        <h3>Módulo de Biología</h3>
+      </div>
+      <div class="classes-list">
+        
+        <article id="biologia-clase-1" class="class-card">
+          <div class="class-header">
+            <div class="class-title-container">
+              <span class="class-title">Clase #1: La Reproducción y Sistema Reproductor Humano</span>
+            </div>
+            <span class="class-date">Biología - 3.º Bachillerato</span>
+          </div>
+          <div class="class-body">
+            <p><strong>Reproducción Sexual:</strong> Los nuevos individuos se producen por la fusión de los gametos haploides para formar el huevo o cigoto diploide. Los espermatozoides actúan como los gametos masculinos y los ovocitos como los gametos femeninos, fusionando sus núcleos con 23 cromosomas cada uno para conformar una célula normal de 46 cromosomas.</p>
+            
+            <h4>Fecundación y Desarrollo</h4>
+            <ul>
+              <li><strong>Fecundación Externa:</strong> Presente en la mayoría de los peces, anfibios y muchos invertebrados.</li>
+              <li><strong>Fecundación Interna:</strong> Se presenta en organismos que depositan huevos amniotas (reptiles, aves y mamíferos monotremas como el ornitorrinco), así como en mamíferos marsupiales y placentarios, donde el embrión se desarrolla dentro de la madre y recibe nutrición directa.</li>
+              <li><strong>Reproducción Humana:</strong> Emplea la fecundación interna y su éxito depende de la acción coordinada del sistema nervioso, las hormonas y el sistema reproductivo. Las gónadas son los órganos sexuales encargados de producir los gametos y hormonas sexuales: los testículos en los varones y los ovarios en las mujeres.</li>
+            </ul>
+
+            <h4>Sistema Reproductor Masculino</h4>
+            <p>Está conformado por los siguientes órganos principales:</p>
+            <ul>
+              <li><strong>Pene:</strong> Órgano musculoso provisto de un conducto interior llamado uretra, a través del cual se expulsa el semen al exterior.</li>
+              <li><strong>Testículos:</strong> Gónadas masculinas alojadas en una bolsa protectora llamada escroto, encargadas de la producción de espermatozoides.</li>
+              <li><strong>Conductos deferentes:</strong> Tubos encargados de comunicar los testículos con la uretra.</li>
+              <li><strong>Próstata y Vesículas Seminales:</strong> Órganos accesorios que segregan el líquido seminal o semen (las vesículas aportan fructosa y prostaglandinas; la próstata un fluido lechoso y alcalino; y las glándulas bulbo uretrales un fluido mucoide para la lubricación durante la cópula).</li>
+            </ul>
+            <p><strong>Espermatogénesis:</strong> Proceso de producción de espermatozoides que inicia en la pubertad y continúa a lo largo de la vida, generando cientos de millones diariamente. Una vez formados, maduran y se almacenan en el epidídimo para luego transitar por el conducto deferente y la uretra.</p>
+
+            <h4>Sistema Reproductor Femenino</h4>
+            <p>Las gónadas femeninas u ovarios se localizan en la porción baja de la cavidad abdominal. Sus componentes principales son:</p>
+            <ul>
+              <li><strong>Vulva:</strong> Genitales externos que incluyen los labios menores (finas membranas protectoras a la salida de la abertura vaginal), los labios mayores (que cubren y protegen la zona) y el clítoris (tejido eréctil muy sensible).</li>
+              <li><strong>Vagina:</strong> Tubo muscular que comunica el exterior del cuerpo con el útero.</li>
+              <li><strong>Útero:</strong> Órgano musculoso destinado a alojar y desarrollar al nuevo ser durante el embarazo.</li>
+              <li><strong>Ovarios:</strong> Órganos productores de las células sexuales femeninas (óvulos). Contienen folículos con óvulos en desarrollo (ovocitos primarios). Cada mujer posee al nacer todos los ovocitos que tendrá en su vida, liberando un ovocito secundario cada mes desde la pubertad hasta la menopausia (totalizando entre 400 y 500 óvulos).</li>
+              <li><strong>Trompas de Falopio:</strong> Conductos que comunican los ovarios con el útero y constituyen el lugar físico donde se produce la fecundación.</li>
+            </ul>
+
+            <h4>Ciclo Menstrual y Hormonal</h4>
+            <p>El ciclo ovárico comprende dos fases reguladas por hormonas del hipotálamo y la hipófisis anterior: el folículo secreta estrógeno antes de la ovulación, mientras que el cuerpo lúteo segrega estrógeno y progesterona después de la misma. El ciclo menstrual (que varía entre 15 y 32 días) inicia con la menstruación (día 0), momento en el cual el endometrio uterino dañado es destruido y eliminado como flujo menstrual. Posteriormente, el estrógeno y la progesterona estimulan el desarrollo y reconstrucción del endometrio para preparar la posible implantación del cigoto.</p>
+
+            <h4>Desarrollo Embrionario y Fases del Embarazo</h4>
+            <p>El desarrollo embrionario abarca el periodo entre la fecundación y el parto (normalmente nueve meses):</p>
+            <ul>
+              <li><strong>Fecundación:</strong> Encuentro y unión de los gametos para dar origen al cigoto.</li>
+              <li><strong>Segmentación:</strong> División sucesiva del cigoto que origina los blastómeros, agrupándose en una mórula.</li>
+              <li><strong>Blastulación:</strong> Formación de la blástula mediante el reagrupamiento de los blastómeros que dejan una cavidad central denominada blastocele.</li>
+              <li><strong>Gastrulación:</strong> Proceso de migración de blastómeros que da origen a las capas germinativas primarias: ectodermo (externa) y endodermo (interna).</li>
+            </ul>
+            
+            <p><strong>Etapas Trimestrales del Embarazo:</strong></p>
+            <ul>
+              <li><strong>Primer Trimestre (Semanas 0 a 12):</strong> Ocurre la implantación del blastocisto en la pared uterina, formación del saco amniótico, desarrollo del tubo neural (cerebro y médula espinal), formación del corazón con latidos detectables, aparición de extremidades (brazos y piernas), huesos, músculos, y definición completa de dedos y órganos principales.</li>
+              <li><strong>Segundo Trimestre (Semanas 13 a 24):</strong> Se reconoce el sexo del feto, el cual adquiere la capacidad de oír y realizar movimientos más vigorosos perceptibles por la madre. Se acumula grasa subcutánea, aparece vello, cejas, pestañas y se termina de formar la placenta.</li>
+              <li><strong>Tercer Trimestre (Semana 25 al nacimiento):</strong> El feto se muestra activo, maduran sus pulmones, cambia de postura preparándose para el parto, alcanzando un promedio de 50 cm de longitud y 3,5 kg de peso.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article id="biologia-clase-2" class="class-card">
+          <div class="class-header">
+            <div class="class-title-container">
+              <span class="class-title">Clase #2: Genética y Leyes de Mendel</span>
+            </div>
+            <span class="class-date">Biología - Nivelación 3.º Bachillerato</span>
+          </div>
+          <div class="class-body">
+            <p><strong>¿Qué es la Genética?</strong> Es la rama de la biología que estudia la herencia, es decir, el proceso biológico mediante el cual los padres transmiten características genéticas y rasgos biológicos a su descendencia. La apariencia física de un individuo (estatura, color de cabello, piel y ojos), así como ciertas aptitudes, talentos, capacidades mentales e inclinaciones a padecer determinadas enfermedades, están reguladas por los genes.</p>
+
+            <h4>Conceptos Clave en Genética</h4>
+            <ul>
+              <li><strong>Gen:</strong> Unidad básica e indivisible de la herencia que consiste en un segmento específico de ADN. Codifica la síntesis de una proteína determinada o molécula de ARN y contiene la información que define los rasgos heredados de los progenitores.</li>
+              <li><strong>Alelo:</strong> Cada una de las variantes o formas alternativas en que puede manifestarse un mismo gen o carácter determinado.</li>
+              <li><strong>Genotipo:</strong> Es la constitución y composición genética interna del individuo en relación con sus rasgos.</li>
+              <li><strong>Fenotipo:</strong> Es la manifestación física, observable o cuantificable exteriormente del genotipo en interacción con el medio ambiente.</li>
+              <li><strong>Homocigoto (Raza Pura):</strong> Individuo que posee dos alelos idénticos para un mismo carácter dentro de sus cromosomas homólogos (ejemplos: <strong>AA</strong> homocigoto dominante o <strong>aa</strong> homocigoto recesivo).</li>
+              <li><strong>Heterocigoto (Híbrido):</strong> Individuo que posee dos alelos diferentes para un carácter específico (ejemplo: <strong>Aa</strong>).</li>
+              <li><strong>Alelo Dominante:</strong> Aquel cuya presencia se expresa en el fenotipo impidiendo la manifestación del alelo recesivo (se representa con letras mayúsculas, ej. <em>A</em>).</li>
+              <li><strong>Alelo Recesivo:</strong> Aquel que solo logra manifestarse fenotípicamente cuando el individuo es homocigoto para dicho gen (se representa con letras minúsculas, ej. <em>a</em>).</li>
+            </ul>
+
+            <h4>Cromosomas Humanos</h4>
+            <p>La especie humana posee en sus células somáticas un total de <strong>46 cromosomas</strong> dispuestas en <strong>23 parejas</strong>:</p>
+            <ul>
+              <li><strong>Pares 1 al 22 (Autosomas):</strong> Son cromosomas somáticos idénticos en ambos sexos que codifican los caracteres corporales no vinculados directamente a la determinación del sexo.</li>
+              <li><strong>Par 23 (Cromosomas Sexuales o Gonosomas):</strong> Corresponden a los cromosomas determinantes del sexo biológico. La combinación <strong>XX</strong> da lugar al sexo femenino, mientras que la combinación <strong>XY</strong> determina el sexo masculino. Los óvulos aportan un cromosoma X, mientras que los espermatozoides pueden aportar un cromosoma X o Y.</li>
+            </ul>
+
+            <h4>Principios y Leyes de Gregor Mendel</h4>
+            <p>Gregor Mendel estableció las bases de la genética moderna al realizar experimentos cruzando plantas de guisante (<em>Pisum sativum</em>) analizando caracteres contraste (como el color amarillo o verde de las semillas).</p>
+            
+            <ol>
+              <li><strong>Primera Ley de Mendel (Principio de la Uniformidad):</strong> Al cruzar dos razas puras homocigotas para un determinado carácter (una con alelos dominantes <strong>AA</strong> y otra con alelos recesivos <strong>aa</strong>), todos los descendientes de la primera generación filial (<strong>F1</strong>) resultan ser genotípicamente idénticos (100% heterocigotos <strong>Aa</strong>) y presentan exteriormente el fenotipo del progenitor dominante (100% semillas amarillas).</li>
+              <li><strong>Segunda Ley de Mendel (Ley de la Segregación):</strong> Al polinizar entre sí a los individuos heterocigotos de la primera generación filial (<strong>Aa × Aa</strong>), los alelos que determinaban el color se separan y segregan durante la formación de gametos. De esta manera, el rasgo recesivo (color verde <strong>aa</strong>) que parecía haber desaparecido en la F1 reaparece en la segunda generación filial (<strong>F2</strong>) en una proporción fenotípica de <strong>3:1</strong> (75% amarillas y 25% verdes) y genotípica de <strong>1:2:1</strong> (25% AA, 50% Aa y 25% aa).</li>
+            </ol>
+          </div>
+        </article>
+
+        <article id="biologia-clase-3" class="class-card">
+          <div class="class-header">
+            <div class="class-title-container">
+              <span class="class-title">Clase #3: Biomas, Selva Tropical y Manglares</span>
+            </div>
+            <span class="class-date">Biología - 3.º Bachillerato</span>
+          </div>
+          <div class="class-body">
+            <p><strong>¿Qué es un Bioma?</strong> Un bioma o dominio bioclimático es una gran zona de la Tierra caracterizada por un tipo de clima y una vegetación predominantes que favorecen el desarrollo de determinados seres vivos. Se extienden por miles o millones de kilómetros cuadrados y sus límites no están claramente delimitados, sino separados por zonas de transición con características intermedias.</p>
+
+            <h4>Tipos de Biomas en la Tierra</h4>
+            <ul>
+              <li><strong>Biomas Terrestres:</strong> Las selvas tropicales, las sabanas, los desiertos cálidos, los bosques caducifolios, las estepas, la taiga, los bosques mediterráneos y la tundra.</li>
+              <li><strong>Biomas Acuáticos:</strong>
+                <ul>
+                  <li><strong>Marinos:</strong> De agua salada (océanos, mares y costas).</li>
+                  <li><strong>Dulceacuícolas:</strong> De agua dulce (ríos, lagos y lagunas).</li>
+                </ul>
+              </li>
+            </ul>
+
+            <h4>La Selva Tropical (Bosque Tropical)</h4>
+            <p>Es un bioma caracterizado por sus condiciones extremas de humedad y biodiversidad. Sus principales rasgos son:</p>
+            <ul>
+              <li><strong>Precipitación y Clima:</strong> Presenta una precipitación lluviosa anual muy elevada y temperaturas promedio altas durante todo el año.</li>
+              <li><strong>Suelos:</strong> Suelos delgados y relativamente pobres en nutrientes debido a la rápida lixiviación causada por las copiosas lluvias.</li>
+              <li><strong>Biodiversidad:</strong> Mantiene los niveles más altos de biodiversidad (riqueza de especies animales y vegetales) del planeta.</li>
+              <li><strong>Localización:</strong> Se sitúa principalmente en las zonas ecuatoriales del planeta.</li>
+            </ul>
+
+            <h4>Los Manglares y su Importancia Ecológica</h4>
+            <p>Los manglares son ecosistemas costeros formados por árboles y arbustos de mangle resistentes a altas concentraciones de salinidad (condiciones salobres). Su flora y fauna asociada constituyen hábitats estratégicos para especies marinas y terrestres.</p>
+
+            <h4>Aspectos Clave de la Importancia de los Manglares</h4>
+            <ol>
+              <li><strong>Producción de materia orgánica:</strong> Generan una gran cantidad de biomasa y hojarasca que alimenta las redes tróficas marinas y estuarinas.</li>
+              <li><strong>Filtración y retención de sedimentos:</strong> Retienen los sedimentos, filtran las aguas subterráneas (mantos freáticos) y atrapan desechos y sustancias tóxicas que fluyen hacia el océano.</li>
+              <li><strong>Desalinización y reservorios:</strong> Desalinizan las aguas que ingresan hacia tierra firme, creando reservorios de agua dulce en zonas interiores.</li>
+              <li><strong>Protección costera y de playas:</strong> Protegen las franjas costeras contra la erosión causada por el oleaje y el viento, además de retener y estabilizar la arena en las playas.</li>
+              <li><strong>Mitigación del Cambio Climático:</strong> Absorben y capturan elevadas cantidades de gases de efecto invernadero (carbono azul) y estabilizan el microclima local.</li>
+              <li><strong>Fuente de recursos:</strong> Brindan recursos pesqueros, alimentarios y sustentables indispensables para las comunidades locales.</li>
+            </ol>
+          </div>
+        </article>
+
+        <article id="biologia-clase-4" class="class-card">
+          <div class="class-header">
+            <div class="class-title-container">
+              <span class="class-title">Clase #4: Biodiversidad del Ecuador: Factores y Regiones</span>
+            </div>
+            <span class="class-date">Biología - 3.º Bachillerato</span>
+          </div>
+          <div class="class-body">
+            <p><strong>Concepto de Biodiversidad:</strong> La biodiversidad o diversidad biológica es la abundancia y variedad de especies distintas en un ecosistema, originada por sus variaciones genéticas y por las características específicas del entorno donde habitan. Es el resultado directo del proceso evolutivo de las especies. El índice de medición de biodiversidad más utilizado en ecología es el de <em>Shannon y Weaver</em>.</p>
+            <p><strong>Origen y Evolución:</strong> Bajo condiciones de presión ambiental, la existencia de individuos dentro de una misma especie con características variadas ha permitido la adaptación a nuevas situaciones biológicas y la posterior aparición de nuevas especies. Es un patrimonio fundamental y la mayor riqueza del planeta.</p>
+
+            <h4>Regiones Biogeográficas y Diversidad en el Ecuador</h4>
+            <p>El Ecuador es reconocido mundialmente como uno de los países megadiversos gracias a la variedad de flora y fauna albergada en sus cuatro regiones naturales principales:</p>
+            <ul>
+              <li><strong>Costa del Pacífico:</strong> Posee bosques secos, tropicales y manglares costeros. Alberga especies emblemáticas como mamíferos marinos, monos, iguanas y una extensa variedad de flora adaptada a ambientes húmedos y secos.</li>
+              <li><strong>Andes (Sierra):</strong> Marcada por el gradiente altitudinal de la cordillera andina. Alberga ecosistemas de paramo, bosques nublados y valles interandinos con especies nativas adaptadas a bajas temperaturas (como el cóndor andino, el oso de anteojos y diversidad de orquídeas y polylepis).</li>
+              <li><strong>Amazonía:</strong> Presenta la mayor densidad de biodiversidad por metro cuadrado. Sus selvas tropicales albergan miles de especies de plantas vasculares, aves, anfibios, reptiles, mamíferos de gran tamaño y peces de agua dulce.</li>
+              <li><strong>Galápagos (Región Insular):</strong> Famosa por sus altísimos niveles de endemismo (especies únicas en el planeta), con reptiles icónicos como las tortugas gigantes, iguanas marinas y terrestres, además de aves como los pinzones de Darwin y piqueros de patas azules.</li>
+            </ul>
+
+            <h4>Factores que Alteran y Amenazan la Biodiversidad</h4>
+            <p>Las actividades humanas y presiones ecológicas generan las siguientes amenazas graves a los ecosistemas del Ecuador y del planeta:</p>
+
+            <ol>
+              <li><strong>Destrucción y Fragmentación de Hábitats:</strong> Causada por la deforestación y el cambio de uso de suelo para agricultura y ganadería. Afecta drásticamente a la fauna silvestre, especialmente a las especies forestales.</li>
+              <li><strong>Explotación Directa de la Fauna:</strong> La caza furtiva, la pesca no sostenible y el tráfico ilegal de especies silvestres diezman las poblaciones de fauna amenazada.</li>
+              <li><strong>Introducción de Especies Exóticas Invasoras:</strong> Organismos introducidos fuera de su hábitat natural que desplazan a las especies autóctonas al competir por recursos como alimento y territorio.</li>
+              <li><strong>Contaminación de Ecosistemas:</strong> Vertido de químicos, plásticos y desechos tóxicos en fuentes hídricas y suelos que alteran los ciclos naturales.</li>
+              <li><strong>Cambio Climático Global:</strong> Modificación acelerada de las temperaturas y patrones climáticos planetarios que altera los periodos de reproducción y distribución geográfica de los organismos. Requiere compromisos internacionales globales para mitigar sus efectos.</li>
+            </ol>
+          </div>
+        </article>
+
+        <article id="biologia-clase-5" class="class-card">
+          <div class="class-header">
+            <div class="class-title-container">
+              <span class="class-title">Clase #5: Áreas Protegidas del Ecuador</span>
+            </div>
+            <span class="class-date">Biología - 3.º Bachillerato</span>
+          </div>
+          <div class="class-body">
+            <p><strong>¿Qué son las Áreas Protegidas?</strong> Son espacios geográficos claramente delimitados, reconocidos y gestionados mediante medios legales u otros mecanismos eficaces para garantizar la conservación a largo plazo de la naturaleza, sus servicios ecosistémicos y sus valores culturales asociados. Constituyen reservas indispensables de capital natural, cultural y social.</p>
+            <p><strong>¿Por qué el Ecuador es considerado un País Megadiverso?</strong> Ecuador alberga una de las concentraciones de diversidad biológica más altas del planeta en relación con su extensión territorial. Su geografía única integra la cordillera de los Andes, la cuenca amazónica, la costa del Pacífico y el archipiélago insular de Galápagos, creando microclimas y hábitats que albergan miles de especies únicas de flora y fauna.</p>
+
+            <h4>El Sistema Nacional de Áreas Protegidas (SNAP)</h4>
+            <p>El SNAP es la herramienta estatal encargada de garantizar la conservación de la biodiversidad y el bienestar de las comunidades. Su estructura institucional abarca cuatro subsistemas principales:</p>
+            <ul>
+              <li><strong>PANE:</strong> Patrimonio de Áreas Naturales del Estado.</li>
+              <li><strong>GAD:</strong> Áreas protegidas gestionadas por los Gobiernos Autónomos Descentralizados.</li>
+              <li><strong>Comunitarias:</strong> Áreas protegidas pertenecientes a comunidades e identidades territoriales.</li>
+              <li><strong>Privadas:</strong> Reservas y predios de conservación de propiedad privada.</li>
+            </ul>
+
+            <h4>Principales Categorías de Manejo en el Ecuador</h4>
+            <ol>
+              <li><strong>Parques Nacionales:</strong> Áreas de gran extensión destinadas a proteger ecosistemas completos, especies silvestres e hitos paisajísticos. Ejemplos representativos:
+                <ul>
+                  <li><em>Parque Nacional Yasuní:</em> Ubicado en las provincias de Orellana y Pastaza (Región Amazónica).</li>
+                  <li><em>Parque Nacional Llanganates:</em> Ubicado entre las provincias de Cotopaxi, Tungurahua, Napo y Pastaza (Regiones Sierra y Amazonía).</li>
+                  <li><em>Parque Nacional Cotopaxi:</em> Ubicado en las provincias de Cotopaxi, Pichincha y Napo.</li>
+                  <li><em>Parque Nacional Machalilla:</em> Ubicado en la provincia de Manabí (Región Costa).</li>
+                </ul>
+              </li>
+              <li><strong>Reservas Ecológicas y Botánicas:</strong> Zonas orientadas a salvaguardar ecosistemas frágiles, formaciones geológicas y especies de flora/fauna amenazadas (ejemplos: <em>Reserva Ecológica Cotacachi-Cayapas</em>, <em>Reserva Ecológica Antisana</em> y <em>Reserva Geobotánica Pululahua</em> en Pichincha).</li>
+              <li><strong>Reservas de Producción de Fauna:</strong> Espacios naturales orientados al manejo sustentable y recuperación de poblaciones de fauna silvestre (ejemplos: <em>Reserva de Producción de Fauna Chimborazo</em> y <em>Reserva Puntilla de Santa Elena</em>).</li>
+              <li><strong>Refugios de Vida Silvestre:</strong> Áreas críticas para la supervivencia de especies amenazadas o de distribución reducida (ejemplo: <em>Refugio de Vida Silvestre Pasachoa</em> en la provincia de Pichincha).</li>
+              <li><strong>Áreas Nacionales de Recreación:</strong> Espacios naturales dedicados principalmente al turismo sustentable, la recreación en la naturaleza y la educación ambiental (ejemplo: <em>Área Nacional de Recreación Isla Santay</em> en Guayas).</li>
+            </ol>
+
+            <h4>Medidas y Acciones para la Protección y Cuidado de las Áreas Naturales</h4>
+            <p>La conservación efectiva de las áreas protegidas requiere la adopción de prácticas responsables tanto por parte de visitantes como de la ciudadanía en general:</p>
+            <ul>
+              <li><strong>No arrojar basura ni desechos:</strong> Evitar la contaminación de suelos y fuentes hídricas con plásticos, restos tóxicos o sustancias químicas que alteren el entorno.</li>
+              <li><strong>Respetar la normativa de acceso:</strong> Acatar estrictamente las normas, senderos señalizados y reglamentos internos fijados por las autoridades de cada área protegida.</li>
+              <li><strong>Preservar el hábitat natural:</strong> No alterar, manipular ni extraer ejemplares de vegetación, rocas, nidos u organismos de su medio natural.</li>
+              <li><strong>Erradicar la caza y tráfico ilegal:</strong> Evitar la caza de fauna silvestre y denunciar el tráfico ilegal de especies para favorecer su reproducción y conservación intergeneracional.</li>
+              <li><strong>Protección del suelo:</strong> Prevenir incendios forestales, evitar la quema de basura y restringir el uso de aerosoles o sustancias químicas perjudiciales.</li>
+              <li><strong>Promoción de la educación ambiental:</strong> Impulsar campañas continuas de concienciación sobre el valor ecosistémico e histórico de las reservas naturales del país.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article id="biologia-clase-6" class="class-card">
+          <div class="class-header">
+            <div class="class-title-container">
+              <span class="class-title">Clase #6: Impactos Ambientales</span>
+            </div>
+            <span class="class-date">Biología - 3.º Bachillerato</span>
+          </div>
+          <div class="class-body">
+            <p><strong>¿Qué es un Impacto Ambiental?</strong> Un impacto ambiental es cualquier alteración, cambio o modificación producida en el ambiente con una determinada complejidad y magnitud como consecuencia directa de las actividades humanas (actividades antropogénicas). Siempre que existen actividades desarrolladas por el ser humano se genera un impacto, el cual puede ser calificado como negativo o positivo.</p>
+
+            <h4>Clasificación de los Impactos Ambientales</h4>
+            <ul>
+              <li><strong>Impacto Ambiental Positivo y Negativo:</strong>
+                <ul>
+                  <li><strong>Negativo:</strong> Modificaciones que provocan la degradación, contaminación o pérdida de calidad en los entornos naturales. Ejemplos: la contaminación del aire y agua, la sobreexplotación de recursos naturales, el aceleramiento del cambio climático y la degradación ambiental de ecosistemas.</li>
+                  <li><strong>Positivo:</strong> Resultado de actividades orientadas explícitamente a la recuperación, conservación o mejora de zonas naturales. Ejemplos: los proyectos de reforestación, el uso e implementación de energías renovables, una gestión eficiente del agua, el tratamiento integral de depuración de aguas residuales y el fomento de hábitos de reciclaje.</li>
+                </ul>
+              </li>
+              <li><strong>Impacto Ambiental Directo e Indirecto:</strong>
+                <ul>
+                  <li><strong>Directo:</strong> Aquel cuya alteración se percibe e identifica de manera inmediata o en un corto período de tiempo tras realizar la actividad.</li>
+                  <li><strong>Indirecto:</strong> Aquel cuyo efecto no se hace evidente inmediatamente, sino que se manifiesta de forma diferida tras un largo período de tiempo.</li>
+                </ul>
+              </li>
+              <li><strong>Impacto Ambiental Acumulativo o Sinérgico:</strong> Se produce cuando la suma de varios impactos pequeños o paulatinos a lo largo del tiempo genera un efecto ambiental sumado o multiplicado de mayor gravedad.</li>
+            </ul>
+
+            <h4>Medidas Correctoras Frente a los Impactos Ambientales</h4>
+            <p>Las <strong>medidas correctoras</strong> son acciones o intervenciones destinadas a mitigar, restaurar, contrarrestar o eliminar los efectos negativos generados sobre el entorno por las actividades del ser humano:</p>
+
+            <ul>
+              <li><strong>Depuración de Aguas Residuales:</strong> El uso doméstico e industrial del agua altera su calidad incorporando materia orgánica, microorganismos, detergentes y aceites. La principal medida correctora consiste en la depuración y tratamiento de las aguas servidas antes de ser vertidas nuevamente a ríos o al mar.</li>
+              <li><strong>Regeneración y Reconversión del Suelo:</strong> La extracción minera y de canteras elimina la cubierta vegetal acelerando la erosión del suelo. Como medida correctora se aplica la regeneración de la vegetación nativa al término de la producción, o la reconversión de los terrenos en zonas turísticas o recreativas acondicionadas.</li>
+              <li><strong>Protección y Consumo Sostenible de Recursos Pesqueros:</strong> La sobreexplotación por alto valor comercial pone a diversas especies marinas en riesgo de extinción. Una medida correctora efectiva es promover el consumo alternativo de especies pesqueras no explotadas que posean similar valor nutritivo.</li>
+            </ul>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+  </div>
+
+  <div class="floating-subject-nav">
+    <button class="subject-toggle-btn active-q" id="bot-btn-quimica" onclick="switchSubject('quimica')">🧪 Química</button>
+    <button class="subject-toggle-btn" id="bot-btn-biologia" onclick="switchSubject('biologia')">🌿 Biología</button>
+  </div>
+
+  <div class="floating-class-nav" id="classNavBtns">
+  </div>
+
+  <script>
+    // Variables para mantener el registro de la última clase vista en cada materia
+    let lastState = {
+      quimica: 'quimica-clase-1',
+      biologia: 'biologia-clase-1'
+    };
+
+    function switchSubject(subject) {
+      const quimicaSec = document.getElementById('quimica');
+      const biologiaSec = document.getElementById('biologia');
+      
+      const topBtnQ = document.getElementById('top-btn-quimica');
+      const topBtnB = document.getElementById('top-btn-biologia');
+      const botBtnQ = document.getElementById('bot-btn-quimica');
+      const botBtnB = document.getElementById('bot-btn-biologia');
+      
+      const classNavBtns = document.getElementById('classNavBtns');
+
+      if (subject === 'quimica') {
+        quimicaSec.classList.add('active');
+        biologiaSec.classList.remove('active');
+        
+        topBtnQ.className = 'tab-btn active-quimica';
+        topBtnB.className = 'tab-btn';
+        botBtnQ.className = 'subject-toggle-btn active-q';
+        botBtnB.className = 'subject-toggle-btn';
+
+        classNavBtns.innerHTML = `
+          <button class="class-nav-btn ${lastState.quimica === 'quimica-clase-1' ? 'active' : ''}" onclick="showClass('quimica-clase-1', this)">Clase 1: Gases</button>
+          <button class="class-nav-btn ${lastState.quimica === 'quimica-clase-2' ? 'active' : ''}" onclick="showClass('quimica-clase-2', this)">Clase 2: Carbono</button>
+          <button class="class-nav-btn ${lastState.quimica === 'quimica-clase-3' ? 'active' : ''}" onclick="showClass('quimica-clase-3', this)">Clase 3: Fórmulas</button>
+          <button class="class-nav-btn ${lastState.quimica === 'quimica-clase-4' ? 'active' : ''}" onclick="showClass('quimica-clase-4', this)">Clase 4: Tipos de C</button>
+          <button class="class-nav-btn ${lastState.quimica === 'quimica-clase-5' ? 'active' : ''}" onclick="showClass('quimica-clase-5', this)">Clase 5: Alcanos</button>
+          <button class="class-nav-btn ${lastState.quimica === 'quimica-clase-6' ? 'active' : ''}" onclick="showClass('quimica-clase-6', this)">Clase 6: Alquenos</button>
+          <button class="class-nav-btn ${lastState.quimica === 'quimica-clase-7' ? 'active' : ''}" onclick="showClass('quimica-clase-7', this)">Clase 7: Alquinos</button>
+          <button class="class-nav-btn ${lastState.quimica === 'quimica-clase-8' ? 'active' : ''}" onclick="showClass('quimica-clase-8', this)">Clase 8: Cíclicos</button>
+          <button class="class-nav-btn ${lastState.quimica === 'all' ? 'active' : ''}" onclick="showClass('all', this)">Todas</button>
+        `;
+        showClass(lastState.quimica);
+      } else {
+        biologiaSec.classList.add('active');
+        quimicaSec.classList.remove('active');
+        
+        topBtnQ.className = 'tab-btn';
+        topBtnB.className = 'tab-btn active-biologia';
+        botBtnQ.className = 'subject-toggle-btn';
+        botBtnB.className = 'subject-toggle-btn active-b';
+
+        classNavBtns.innerHTML = `
+          <button class="class-nav-btn ${lastState.biologia === 'biologia-clase-1' ? 'active' : ''}" onclick="showClass('biologia-clase-1', this)">Clase 1: Reproducción</button>
+          <button class="class-nav-btn ${lastState.biologia === 'biologia-clase-2' ? 'active' : ''}" onclick="showClass('biologia-clase-2', this)">Clase 2: Genética</button>
+          <button class="class-nav-btn ${lastState.biologia === 'biologia-clase-3' ? 'active' : ''}" onclick="showClass('biologia-clase-3', this)">Clase 3: Biomas y Manglares</button>
+          <button class="class-nav-btn ${lastState.biologia === 'biologia-clase-4' ? 'active' : ''}" onclick="showClass('biologia-clase-4', this)">Clase 4: Biodiversidad</button>
+          <button class="class-nav-btn ${lastState.biologia === 'biologia-clase-5' ? 'active' : ''}" onclick="showClass('biologia-clase-5', this)">Clase 5: Áreas Protegidas</button>
+          <button class="class-nav-btn ${lastState.biologia === 'biologia-clase-6' ? 'active' : ''}" onclick="showClass('biologia-clase-6', this)">Clase 6: Impactos Ambientales</button>
+          <button class="class-nav-btn ${lastState.biologia === 'all' ? 'active' : ''}" onclick="showClass('all', this)">Todas</button>
+        `;
+        showClass(lastState.biologia);
+      }
+    }
+
+    function showClass(classId, btnElement) {
+      const activeSubject = document.querySelector('.subject-content.active');
+      const currentSubjectId = activeSubject.id; // 'quimica' o 'biologia'
+
+      // Guardar el estado actual
+      lastState[currentSubjectId] = classId;
+
+      if (btnElement) {
+        const allNavBtns = document.querySelectorAll('#classNavBtns .class-nav-btn');
+        allNavBtns.forEach(btn => btn.classList.remove('active'));
+        btnElement.classList.add('active');
+      }
+
+      const cards = activeSubject.querySelectorAll('.class-card');
+
+      if (classId === 'all') {
+        cards.forEach(card => card.classList.add('active-section'));
+      } else {
+        cards.forEach(card => {
+          if (card.id === classId) {
+            card.classList.add('active-section');
+          } else {
+            card.classList.remove('active-section');
+          }
+        });
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Abre por defecto en Química, Clase 1
+      switchSubject('quimica');
+    });
+  </script>
+</body>
+</html>
