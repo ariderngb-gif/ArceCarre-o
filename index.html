@@ -21,6 +21,10 @@
       --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -36,6 +40,7 @@
       justify-content: center;
       align-items: flex-start;
       padding: 20px 20px 100px 20px;
+      overflow-x: hidden;
     }
 
     .app-container {
@@ -114,6 +119,12 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
+      outline: none;
+    }
+
+    .tab-btn:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
     }
 
     .tab-btn.active-quimica {
@@ -176,6 +187,8 @@
       gap: 8px;
       max-width: 60vw;
       overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-x;
     }
 
     /* BARRA FLOTANTE IZQUIERDA: MATERIAS (APARTADO INDEPENDIENTE) */
@@ -206,11 +219,13 @@
       cursor: pointer;
       white-space: nowrap;
       transition: var(--transition);
+      outline: none;
     }
 
-    .class-nav-btn:hover {
+    .class-nav-btn:hover, .class-nav-btn:focus-visible {
       background: #e2e8f0;
       color: var(--text-main);
+      outline: 2px solid var(--accent);
     }
 
     .class-nav-btn.active {
@@ -230,6 +245,11 @@
       transition: var(--transition);
       background: #f1f5f9;
       color: var(--text-muted);
+      outline: none;
+    }
+
+    .subject-toggle-btn:focus-visible {
+      outline: 2px solid var(--accent);
     }
 
     .subject-toggle-btn.active-q {
@@ -326,7 +346,7 @@
 
     @media (max-width: 650px) {
       body {
-        padding: 10px 10px 120px 10px;
+        padding: 10px 10px 140px 10px;
       }
 
       .header-card h1 {
@@ -360,7 +380,7 @@
         right: auto;
         transform: translateX(-50%);
         bottom: 15px;
-        max-width: 90vw;
+        max-width: 92vw;
       }
     }
   </style>
@@ -1085,6 +1105,21 @@
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
+    // Soporte para navegación con teclado y controles remotos de Smart TV
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        const activeNavBtns = Array.from(document.querySelectorAll('#classNavBtns .class-nav-btn'));
+        const activeIndex = activeNavBtns.findIndex(btn => btn.classList.contains('active'));
+        if (activeIndex !== -1) {
+          if (e.key === 'ArrowRight' && activeIndex < activeNavBtns.length - 1) {
+            activeNavBtns[activeIndex + 1].click();
+          } else if (e.key === 'ArrowLeft' && activeIndex > 0) {
+            activeNavBtns[activeIndex - 1].click();
+          }
+        }
+      }
+    });
 
     document.addEventListener('DOMContentLoaded', () => {
       // Abre por defecto en Química, Clase 1
